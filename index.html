@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADN-B · La Molécula de la Vida</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #06090f;
+    --bg2: #0b1120;
+    --bg3: #111827;
+    --surface: #162033;
+    --border: rgba(100,180,255,0.12);
+    --text: #e8f4ff;
+    --muted: #7a9ab5;
+    --accent-blue: #4fa3e8;
+    --accent-green: #3ecf8e;
+    --accent-red: #f25c7c;
+    --accent-yellow: #f7c948;
+    --accent-white: #cce8ff;
+    --strand1: #4fa3e8;
+    --strand2: #3ecf8e;
+    --adenine: #4fa3e8;
+    --thymine: #f25c7c;
+    --guanine: #3ecf8e;
+    --cytosine: #f7c948;
+    --glow-blue: rgba(79,163,232,0.18);
+    --glow-green: rgba(62,207,142,0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { overflow-x: hidden; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero-canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0.25;
+  }
+
+  .cell-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 20% 80%, rgba(62,207,142,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 50% at 80% 20%, rgba(79,163,232,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(79,163,232,0.04) 0%, transparent 80%);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 700px;
+    width: 100%;
+  }
+
+  .eyebrow {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--accent-green);
+    border: 1px solid rgba(62,207,142,0.3);
+    padding: 0.35em 1em;
+    border-radius: 20px;
+    margin-bottom: 1.5rem;
+    background: rgba(62,207,142,0.06);
+    word-break: break-word;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.8rem, 10vw, 5rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 0.4rem;
+    background: linear-gradient(135deg, #cce8ff 0%, #4fa3e8 50%, #3ecf8e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1rem, 3vw, 1.25rem);
+    color: var(--muted);
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+  }
+
+  .hero-desc {
+    font-size: 0.95rem;
+    color: var(--muted);
+    max-width: 520px;
+    margin: 0 auto 3rem;
+    line-height: 1.7;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .stat { text-align: center; }
+
+  .stat-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .scroll-cue {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    z-index: 1;
+    animation: bob 2s ease-in-out infinite;
+  }
+
+  .scroll-arrow {
+    width: 1px;
+    height: 30px;
+    background: linear-gradient(to bottom, transparent, var(--accent-blue));
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+  }
+
+  /* SECTION */
+  section {
+    padding: 5rem 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .section-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent-blue);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+    display: block;
+  }
+
+  h2 {
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.8rem;
+    line-height: 1.2;
+  }
+
+  .section-intro {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+    max-width: 600px;
+    margin-bottom: 3rem;
+  }
+
+  /* ANIMATION CARD */
+  .anim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    transition: border-color 0.3s;
+  }
+
+  .anim-card:hover { border-color: rgba(79,163,232,0.3); }
+
+  .anim-header {
+    padding: 1.25rem 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .anim-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent-green);
+    background: rgba(62,207,142,0.1);
+    border: 1px solid rgba(62,207,142,0.2);
+    border-radius: 20px;
+    padding: 0.2em 0.8em;
+    flex-shrink: 0;
+  }
+
+  .anim-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .anim-canvas-wrap {
+    position: relative;
+    height: 120px;
+    margin: 1.25rem 1.5rem;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  canvas { display: block; width: 100%; height: 100%; }
+
+  .anim-desc {
+    padding: 0 1.5rem 1.5rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+
+  .anim-controls {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0 1.5rem 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 0.45em 1em;
+    border-radius: 8px;
+    border: 1px solid rgba(79,163,232,0.3);
+    background: rgba(79,163,232,0.08);
+    color: var(--accent-blue);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+    min-height: 36px;
+  }
+
+  .btn:hover { background: rgba(79,163,232,0.18); border-color: rgba(79,163,232,0.5); }
+  .btn.active { background: var(--accent-blue); color: var(--bg); border-color: var(--accent-blue); }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0 1.5rem 1.25rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* INFO SECTION */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+  }
+
+  .info-icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
+
+  .info-card h3 {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .info-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
+
+  /* BASES TABLE */
+  .bases-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .base-card { border: 1px solid; border-radius: 12px; padding: 1.25rem; text-align: center; }
+
+  .base-card .base-letter {
+    font-family: 'Space Mono', monospace;
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+
+  .base-card .base-name { font-size: 0.75rem; margin-bottom: 0.5rem; font-weight: 300; }
+
+  .base-card .base-pair {
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    background: rgba(255,255,255,0.06);
+    border-radius: 6px;
+    padding: 0.2em 0.6em;
+    display: inline-block;
+  }
+
+  .base-A { border-color: rgba(79,163,232,0.4); background: rgba(79,163,232,0.06); }
+  .base-A .base-letter { color: var(--adenine); }
+  .base-T { border-color: rgba(242,92,124,0.4); background: rgba(242,92,124,0.06); }
+  .base-T .base-letter { color: var(--thymine); }
+  .base-G { border-color: rgba(62,207,142,0.4); background: rgba(62,207,142,0.06); }
+  .base-G .base-letter { color: var(--guanine); }
+  .base-C { border-color: rgba(247,201,72,0.4); background: rgba(247,201,72,0.06); }
+  .base-C .base-letter { color: var(--cytosine); }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+    margin: 0 auto;
+    max-width: 900px;
+  }
+
+  /* LINK SECTION */
+  .link-section {
+    background: linear-gradient(135deg, rgba(79,163,232,0.06) 0%, rgba(62,207,142,0.06) 100%);
+    border: 1px solid rgba(79,163,232,0.2);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    text-align: center;
+    margin: 2rem 0;
+  }
+
+  .link-section h2 {
+    margin-bottom: 0.8rem;
+    background: linear-gradient(135deg, #cce8ff, #3ecf8e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .link-section p { color: var(--muted); font-size: 0.95rem; margin-bottom: 2rem; line-height: 1.6; }
+
+  .doc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 0.85em 2em;
+    background: linear-gradient(135deg, #4fa3e8, #3ecf8e);
+    color: #04090f;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s;
+    box-shadow: 0 0 30px rgba(79,163,232,0.2);
+    max-width: 100%;
+  }
+
+  .doc-btn:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(79,163,232,0.35); }
+  .doc-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+
+  footer .footer-logo {
+    font-family: 'Space Mono', monospace;
+    color: var(--accent-green);
+    font-size: 1rem;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  /* CHIP INFO */
+  .nfc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(62,207,142,0.08);
+    border: 1px solid rgba(62,207,142,0.2);
+    border-radius: 30px;
+    padding: 0.4em 1.2em;
+    font-size: 0.75rem;
+    color: var(--accent-green);
+    margin-bottom: 1.5rem;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  .nfc-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    animation: pulse-dot 1.5s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+
+  /* ===================== RESPONSIVE ===================== */
+
+  @media (max-width: 768px) {
+    section { padding: 4rem 1.25rem; }
+    .hero-stats { gap: 1.2rem; }
+    .stat-num { font-size: 1.4rem; }
+    .info-grid { grid-template-columns: 1fr; }
+    .anim-canvas-wrap { height: 100px; margin: 1rem; }
+    .anim-header { padding: 1rem 1rem 0; }
+    .anim-desc { padding: 0 1rem 1rem; }
+    .anim-controls { padding: 0 1rem 1rem; }
+    .legend { padding: 0 1rem 1rem; }
+    .link-section { padding: 2rem 1.25rem; border-radius: 14px; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-stats { gap: 1rem; }
+    .stat-num { font-size: 1.25rem; }
+    .stat-label { font-size: 0.62rem; }
+    .bases-grid { gap: 0.75rem; }
+    .base-card { padding: 1rem 0.75rem; }
+    .base-card .base-letter { font-size: 2rem; }
+    section { padding: 3.5rem 1.25rem; }
+    .link-section { padding: 2rem 1rem; }
+    .doc-btn { width: 100%; font-size: 0.9rem; }
+    .anim-card { border-radius: 12px; }
+    .eyebrow { font-size: 0.62rem; letter-spacing: 0.1em; }
+  }
+
+  @media (max-width: 360px) {
+    .hero-stats { gap: 0.75rem; }
+    .stat-num { font-size: 1.1rem; }
+    .base-card .base-letter { font-size: 1.75rem; }
+    .anim-canvas-wrap { height: 85px; margin: 0.75rem; }
+    section { padding: 3rem 1rem; }
+    .info-card { padding: 1.25rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg">
+    <div class="cell-bg"></div>
+    <canvas class="hero-canvas" id="heroCanvas"></canvas>
+  </div>
+
+  <div class="hero-content">
+    <div class="eyebrow">Proyecto ADN-B · Biología Molecular</div>
+    <h1>ADN-B</h1>
+    <p class="hero-subtitle">La molécula que contiene el código de la vida</p>
+    <p class="hero-desc">
+      El ADN en su forma B es la conformación más común en condiciones fisiológicas.
+      Una doble hélice dextrorsa con ~10 pares de bases por vuelta, que almacena
+      la información genética de todos los seres vivos conocidos.
+    </p>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">3.4 Å</span>
+        <span class="stat-label">Distancia entre bases</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">10</span>
+        <span class="stat-label">Pares por vuelta</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">2 nm</span>
+        <span class="stat-label">Diámetro de la hélice</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">4</span>
+        <span class="stat-label">Bases nitrogenadas</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-cue">
+    <span>EXPLORAR</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ANIMATIONS SECTION -->
+<section>
+  <span class="section-tag">// visualizaciones interactivas</span>
+  <h2>Las 5 Animaciones del ADN-B</h2>
+  <p class="section-intro">
+    Cada animación representa un comportamiento o propiedad estructural distinta
+    de la molécula de ADN en su forma B. Las dos franjas representan las dos
+    cadenas complementarias de la doble hélice.
+  </p>
+
+  <!-- ANIMATION 1 -->
+  <div class="anim-card">
+    <div class="anim-header">
+      <span class="anim-num">01</span>
+      <span class="anim-title">Doble Hélice</span>
+    </div>
+    <div class="anim-canvas-wrap"><canvas id="canvas1"></canvas></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#4fa3e8"></div><span>Cadena 1 — primera cadena</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3ecf8e"></div><span>Cadena 2 — segunda cadena</span></div>
+    </div>
+    <p class="anim-desc">
+      Las dos cadenas se enrollan entre sí formando la hélice doble. Las olas de luz
+      están desfasadas: cuando una alcanza su máximo brillo, la otra está en su mínimo,
+      recreando el movimiento espiral complementario de la molécula.
+    </p>
+    <div class="anim-controls">
+      <button class="btn active" onclick="setSpeed(1,1)">Lento</button>
+      <button class="btn" onclick="setSpeed(1,2)">Normal</button>
+      <button class="btn" onclick="setSpeed(1,3)">Rápido</button>
+    </div>
+  </div>
+
+  <!-- ANIMATION 2 -->
+  <div class="anim-card">
+    <div class="anim-header">
+      <span class="anim-num">02</span>
+      <span class="anim-title">Pares de Bases</span>
+    </div>
+    <div class="anim-canvas-wrap"><canvas id="canvas2"></canvas></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#4fa3e8"></div><span>Adenina (A)</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f25c7c"></div><span>Timina (T)</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3ecf8e"></div><span>Guanina (G)</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f7c948"></div><span>Citosina (C)</span></div>
+    </div>
+    <p class="anim-desc">
+      Un punto de luz viaja a lo largo de ambas cadenas representando un par de bases
+      recorriendo la molécula. Solo existen dos combinaciones: A·T y G·C.
+      Al llegar al final, aparece un nuevo par elegido al azar.
+    </p>
+  </div>
+
+  <!-- ANIMATION 3 -->
+  <div class="anim-card">
+    <div class="anim-header">
+      <span class="anim-num">03</span>
+      <span class="anim-title">Replicación del ADN</span>
+    </div>
+    <div class="anim-canvas-wrap"><canvas id="canvas3"></canvas></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#1e3a5f"></div><span>ADN original</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#cce8ff"></div><span>Horquilla de replicación</span></div>
+    </div>
+    <p class="anim-desc">
+      La replicación comienza desde el centro. Una zona de luz blanca brillante
+      se expande hacia los extremos, simulando cómo la doble hélice se "descomprime"
+      para ser copiada antes de la división celular.
+    </p>
+  </div>
+
+  <!-- ANIMATION 4 -->
+  <div class="anim-card">
+    <div class="anim-header">
+      <span class="anim-num">04</span>
+      <span class="anim-title">Secuencia de Nucleótidos</span>
+    </div>
+    <div class="anim-canvas-wrap"><canvas id="canvas4"></canvas></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#3ecf8e"></div><span>A — Adenina</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f25c7c"></div><span>T — Timina</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#4fa3e8"></div><span>G — Guanina</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f7c948"></div><span>C — Citosina</span></div>
+    </div>
+    <p class="anim-desc">
+      Cada segmento representa un nucleótido con su base correspondiente.
+      Las dos cadenas muestran secuencias complementarias: A siempre frente a T,
+      G siempre frente a C, tal como ocurre en la molécula real.
+    </p>
+  </div>
+
+  <!-- ANIMATION 5 -->
+  <div class="anim-card">
+    <div class="anim-header">
+      <span class="anim-num">05</span>
+      <span class="anim-title">Surcos Mayor y Menor</span>
+    </div>
+    <div class="anim-canvas-wrap"><canvas id="canvas5"></canvas></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#4fa3e8"></div><span>Surco mayor (4 LEDs)</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#162033"></div><span>Surco menor (2 LEDs)</span></div>
+    </div>
+    <p class="anim-desc">
+      La hélice forma dos tipos de espacios: el surco mayor (más amplio, 4 LEDs brillantes)
+      y el surco menor (más estrecho, 2 LEDs tenues). Las proteínas y enzimas utilizan
+      estos surcos para leer e interactuar con el código genético.
+    </p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- BASES SECTION -->
+<section>
+  <span class="section-tag">// bioquímica</span>
+  <h2>Las Cuatro Bases Nitrogenadas</h2>
+  <p class="section-intro">
+    El "alfabeto" del ADN está compuesto por solo cuatro letras. La secuencia
+    específica de estas bases codifica toda la información genética de un organismo.
+  </p>
+
+  <div class="bases-grid">
+    <div class="base-card base-A">
+      <div class="base-letter">A</div>
+      <div class="base-name" style="color:#4fa3e8">Adenina</div>
+      <div class="base-pair" style="color:#4fa3e8">Par con T</div>
+    </div>
+    <div class="base-card base-T">
+      <div class="base-letter">T</div>
+      <div class="base-name" style="color:#f25c7c">Timina</div>
+      <div class="base-pair" style="color:#f25c7c">Par con A</div>
+    </div>
+    <div class="base-card base-G">
+      <div class="base-letter">G</div>
+      <div class="base-name" style="color:#3ecf8e">Guanina</div>
+      <div class="base-pair" style="color:#3ecf8e">Par con C</div>
+    </div>
+    <div class="base-card base-C">
+      <div class="base-letter">C</div>
+      <div class="base-name" style="color:#f7c948">Citosina</div>
+      <div class="base-pair" style="color:#f7c948">Par con G</div>
+    </div>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="info-icon">🔗</div>
+      <h3>Puentes de Hidrógeno</h3>
+      <p>A·T se une con 2 puentes de hidrógeno. G·C con 3. Por eso las regiones ricas en G·C son más estables térmicamente.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">🔄</div>
+      <h3>Antiparalelismo</h3>
+      <p>Las dos cadenas corren en direcciones opuestas (5'→3' y 3'→5'), lo cual es esencial para la replicación y transcripción.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">🧬</div>
+      <h3>Forma B</h3>
+      <p>La forma B es la más común en condiciones fisiológicas. Su hélice gira ~36° por par de bases, completando una vuelta cada 10 pares.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- LINK SECTION -->
+<section>
+  <div class="link-section">
+    <div class="nfc-badge">
+      <span class="nfc-dot"></span>
+      NFC · Acceso instantáneo
+    </div>
+    <h2>Documentación del Proyecto</h2>
+    <p>
+      Accede al documento completo del proyecto ADN-B: metodología, resultados,
+      análisis de las animaciones LED y conclusiones del equipo.
+    </p>
+    <a href="https://canva.link/ttrc6mj7sk8x8wq" class="doc-btn" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10 9 9 9 8 9"/>
+      </svg>
+      Ver documento del proyecto
+    </a>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-logo">ADN-B</span>
+  Proyecto de Biología Molecular · Visualización Interactiva
+  <br><br>
+  <span style="font-size:0.72rem; opacity:0.5">
+    Diseñado para acceso vía chip NFC · Escanea y explora
+  </span>
+</footer>
+
+<script>
+// --- HERO CANVAS ---
+const heroCanvas = document.getElementById('heroCanvas');
+const hCtx = heroCanvas.getContext('2d');
+let hW, hH, particles = [];
+
+function resizeHero() {
+  hW = heroCanvas.width = heroCanvas.offsetWidth;
+  hH = heroCanvas.height = heroCanvas.offsetHeight;
+}
+resizeHero();
+window.addEventListener('resize', resizeHero);
+
+for (let i = 0; i < 60; i++) {
+  particles.push({
+    x: Math.random() * 1200,
+    y: Math.random() * 900,
+    r: Math.random() * 1.5 + 0.3,
+    vx: (Math.random() - 0.5) * 0.3,
+    vy: (Math.random() - 0.5) * 0.15 - 0.08,
+    alpha: Math.random() * 0.6 + 0.2,
+    color: Math.random() > 0.5 ? '#4fa3e8' : '#3ecf8e'
+  });
+}
+
+function animHero() {
+  hCtx.clearRect(0, 0, hW, hH);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.y < -5) { p.y = hH + 5; p.x = Math.random() * hW; }
+    if (p.x < -5) p.x = hW + 5;
+    if (p.x > hW + 5) p.x = -5;
+    hCtx.beginPath();
+    hCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    hCtx.fillStyle = p.color;
+    hCtx.globalAlpha = p.alpha;
+    hCtx.fill();
+  });
+  hCtx.globalAlpha = 1;
+  requestAnimationFrame(animHero);
+}
+animHero();
+
+// --- ANIMATION ENGINE ---
+const NUM_LEDS = 32;
+const speeds = [1, 1, 1, 1, 1];
+
+function setSpeed(anim, s) {
+  speeds[anim - 1] = s;
+  const card = document.querySelectorAll('.anim-card')[anim - 1];
+  const btns = card.querySelectorAll('.btn');
+  btns.forEach((b, i) => b.classList.toggle('active', i + 1 === s));
+}
+
+function setupCanvas(id) {
+  const canvas = document.getElementById(id);
+  const wrap = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = wrap.offsetWidth * dpr;
+  canvas.height = wrap.offsetHeight * dpr;
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  return ctx;
+}
+
+function getSize(id) {
+  const c = document.getElementById(id);
+  const dpr = window.devicePixelRatio || 1;
+  return { W: c.width / dpr, H: c.height / dpr };
+}
+
+// --- ANIM 1: Doble Hélice ---
+const ctx1 = setupCanvas('canvas1');
+let t1 = 0;
+
+function drawAnim1() {
+  const { W, H } = getSize('canvas1');
+  ctx1.clearRect(0, 0, W, H);
+  const ledW = W / NUM_LEDS, r = ledW * 0.35;
+  const y1 = H * 0.33, y2 = H * 0.67;
+
+  for (let i = 0; i < NUM_LEDS; i++) {
+    const x = i * ledW + ledW / 2;
+    const a1 = (Math.sin(t1 + i * 0.4) + 1) / 2;
+    const a2 = (Math.sin(t1 + i * 0.4 + Math.PI) + 1) / 2;
+
+    ctx1.beginPath(); ctx1.arc(x, y1, r, 0, Math.PI * 2);
+    ctx1.fillStyle = `rgba(79,163,232,${0.1 + a1 * 0.9})`;
+    ctx1.shadowColor = '#4fa3e8'; ctx1.shadowBlur = a1 * 12; ctx1.fill();
+
+    ctx1.beginPath(); ctx1.arc(x, y2, r, 0, Math.PI * 2);
+    ctx1.fillStyle = `rgba(62,207,142,${0.1 + a2 * 0.9})`;
+    ctx1.shadowColor = '#3ecf8e'; ctx1.shadowBlur = a2 * 12; ctx1.fill();
+
+    if (i % 4 === 0) {
+      ctx1.beginPath(); ctx1.moveTo(x, y1 + r); ctx1.lineTo(x, y2 - r);
+      ctx1.strokeStyle = `rgba(255,255,255,${(a1 + a2) / 2 * 0.08})`;
+      ctx1.lineWidth = 0.5; ctx1.shadowBlur = 0; ctx1.stroke();
+    }
+  }
+  ctx1.shadowBlur = 0;
+  t1 += 0.025 * speeds[0];
+}
+
+// --- ANIM 2: Pares de Bases ---
+const ctx2 = setupCanvas('canvas2');
+let t2 = 0;
+const basePairs = [['#4fa3e8','#f25c7c'],['#3ecf8e','#f7c948']];
+let currentPair = basePairs[0];
+
+function drawAnim2() {
+  const { W, H } = getSize('canvas2');
+  ctx2.clearRect(0, 0, W, H);
+  const ledW = W / NUM_LEDS, r = ledW * 0.35;
+  const y1 = H * 0.3, y2 = H * 0.7;
+  const pos = t2 % NUM_LEDS;
+
+  for (let i = 0; i < NUM_LEDS; i++) {
+    const x = i * ledW + ledW / 2;
+    const dist = Math.min(Math.abs(i - pos), NUM_LEDS - Math.abs(i - pos));
+    const glow = Math.max(0, 1 - dist / 2.5);
+
+    ctx2.beginPath(); ctx2.arc(x, y1, r, 0, Math.PI * 2);
+    ctx2.fillStyle = 'rgba(79,163,232,0.08)'; ctx2.fill();
+    ctx2.beginPath(); ctx2.arc(x, y2, r, 0, Math.PI * 2);
+    ctx2.fillStyle = 'rgba(62,207,142,0.08)'; ctx2.fill();
+
+    if (glow > 0.01) {
+      const hex = Math.round(glow * 255).toString(16).padStart(2,'0');
+      ctx2.beginPath(); ctx2.arc(x, y1, r, 0, Math.PI * 2);
+      ctx2.fillStyle = currentPair[0] + hex;
+      ctx2.shadowColor = currentPair[0]; ctx2.shadowBlur = glow * 18; ctx2.fill();
+      ctx2.beginPath(); ctx2.arc(x, y2, r, 0, Math.PI * 2);
+      ctx2.fillStyle = currentPair[1] + hex;
+      ctx2.shadowColor = currentPair[1]; ctx2.shadowBlur = glow * 18; ctx2.fill();
+      ctx2.beginPath(); ctx2.moveTo(x, y1 + r); ctx2.lineTo(x, y2 - r);
+      ctx2.strokeStyle = `rgba(255,255,255,${glow * 0.2})`;
+      ctx2.lineWidth = 1; ctx2.shadowBlur = 0; ctx2.stroke();
+    }
+  }
+  ctx2.shadowBlur = 0;
+  t2 += 0.08;
+  if (t2 % NUM_LEDS < 0.08) currentPair = basePairs[Math.floor(Math.random() * 2)];
+}
+
+// --- ANIM 3: Replicación ---
+const ctx3 = setupCanvas('canvas3');
+let t3 = 0;
+
+function drawAnim3() {
+  const { W, H } = getSize('canvas3');
+  ctx3.clearRect(0, 0, W, H);
+  const ledW = W / NUM_LEDS, r = ledW * 0.35;
+  const y1 = H * 0.3, y2 = H * 0.7;
+  const center = NUM_LEDS / 2;
+  const spread = (Math.sin(t3) + 1) / 2 * (NUM_LEDS / 2 + 2);
+
+  for (let i = 0; i < NUM_LEDS; i++) {
+    const x = i * ledW + ledW / 2;
+    const dist = Math.abs(i - center);
+    const inFork = dist < spread;
+    const forkEdge = Math.max(0, 1 - Math.abs(dist - spread) / 2);
+    const baseAlpha = inFork ? 0.05 : 0.5;
+    const forkAlpha = inFork ? Math.min(1, (spread - dist) / 4) : 0;
+
+    ctx3.beginPath(); ctx3.arc(x, y1, r, 0, Math.PI * 2);
+    ctx3.fillStyle = `rgba(30,58,95,${baseAlpha})`; ctx3.fill();
+    ctx3.beginPath(); ctx3.arc(x, y2, r, 0, Math.PI * 2);
+    ctx3.fillStyle = `rgba(30,58,95,${baseAlpha})`; ctx3.fill();
+
+    if (inFork) {
+      ctx3.beginPath(); ctx3.arc(x, y1, r, 0, Math.PI * 2);
+      ctx3.fillStyle = `rgba(204,232,255,${forkAlpha * 0.9})`;
+      ctx3.shadowColor = '#cce8ff'; ctx3.shadowBlur = forkAlpha * 20; ctx3.fill();
+      ctx3.beginPath(); ctx3.arc(x, y2, r, 0, Math.PI * 2);
+      ctx3.fillStyle = `rgba(204,232,255,${forkAlpha * 0.9})`; ctx3.fill();
+    }
+
+    if (forkEdge > 0.3) {
+      ctx3.beginPath(); ctx3.arc(x, y1, r * 1.2, 0, Math.PI * 2);
+      ctx3.fillStyle = `rgba(79,163,232,${forkEdge * 0.7})`;
+      ctx3.shadowColor = '#4fa3e8'; ctx3.shadowBlur = forkEdge * 14; ctx3.fill();
+      ctx3.beginPath(); ctx3.arc(x, y2, r * 1.2, 0, Math.PI * 2);
+      ctx3.fillStyle = `rgba(79,163,232,${forkEdge * 0.7})`; ctx3.fill();
+    }
+  }
+  ctx3.shadowBlur = 0;
+  t3 += 0.018;
+}
+
+// --- ANIM 4: Secuencia de Nucleótidos ---
+const ctx4 = setupCanvas('canvas4');
+let t4 = 0;
+const BASE_COLORS = ['#3ecf8e','#f25c7c','#4fa3e8','#f7c948'];
+const SEQ_LEN = 40;
+const seqA = Array.from({length: SEQ_LEN}, () => Math.floor(Math.random() * 4));
+const seqB = seqA.map(b => b % 2 === 0 ? b + 1 : b - 1);
+
+function drawAnim4() {
+  const { W, H } = getSize('canvas4');
+  ctx4.clearRect(0, 0, W, H);
+  const ledW = W / NUM_LEDS, r = ledW * 0.36;
+  const y1 = H * 0.3, y2 = H * 0.7;
+  const shift = t4 % SEQ_LEN;
+
+  for (let i = 0; i < NUM_LEDS; i++) {
+    const x = i * ledW + ledW / 2;
+    const idx = Math.floor(i + shift) % SEQ_LEN;
+    const cA = BASE_COLORS[seqA[idx]], cB = BASE_COLORS[seqB[idx]];
+
+    ctx4.beginPath(); ctx4.arc(x, y1, r, 0, Math.PI * 2);
+    ctx4.fillStyle = cA; ctx4.shadowColor = cA; ctx4.shadowBlur = 8; ctx4.fill();
+    ctx4.beginPath(); ctx4.arc(x, y2, r, 0, Math.PI * 2);
+    ctx4.fillStyle = cB; ctx4.shadowColor = cB; ctx4.shadowBlur = 8; ctx4.fill();
+
+    if (i % 2 === 0) {
+      ctx4.beginPath(); ctx4.moveTo(x, y1 + r); ctx4.lineTo(x, y2 - r);
+      ctx4.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx4.lineWidth = 0.5; ctx4.shadowBlur = 0; ctx4.stroke();
+    }
+  }
+  ctx4.shadowBlur = 0;
+  t4 += 0.08;
+}
+
+// --- ANIM 5: Surcos Mayor y Menor ---
+const ctx5 = setupCanvas('canvas5');
+let t5 = 0;
+
+function drawAnim5() {
+  const { W, H } = getSize('canvas5');
+  ctx5.clearRect(0, 0, W, H);
+  const ledW = W / NUM_LEDS, r = ledW * 0.35;
+  const y1 = H * 0.3, y2 = H * 0.7;
+  const shift = Math.floor(t5) % 6;
+
+  for (let i = 0; i < NUM_LEDS; i++) {
+    const x = i * ledW + ledW / 2;
+    const major = (i + shift) % 6 < 4;
+    ctx5.beginPath(); ctx5.arc(x, y1, r, 0, Math.PI * 2);
+    ctx5.fillStyle = `rgba(79,163,232,${major ? 0.95 : 0.12})`;
+    ctx5.shadowColor = '#4fa3e8'; ctx5.shadowBlur = major ? 14 : 0; ctx5.fill();
+    ctx5.beginPath(); ctx5.arc(x, y2, r, 0, Math.PI * 2);
+    ctx5.fillStyle = `rgba(79,163,232,${major ? 0.95 : 0.12})`; ctx5.fill();
+  }
+  ctx5.shadowBlur = 0;
+  t5 += 0.06;
+}
+
+// --- MAIN LOOP ---
+function loop() {
+  drawAnim1(); drawAnim2(); drawAnim3(); drawAnim4(); drawAnim5();
+  requestAnimationFrame(loop);
+}
+loop();
+
+window.addEventListener('resize', () => {
+  ['canvas1','canvas2','canvas3','canvas4','canvas5'].forEach(id => {
+    const c = document.getElementById(id);
+    const dpr = window.devicePixelRatio || 1;
+    c.width = c.parentElement.offsetWidth * dpr;
+    c.height = c.parentElement.offsetHeight * dpr;
+    c.getContext('2d').scale(dpr, dpr);
+  });
+});
+</script>
+</body>
+</html>
